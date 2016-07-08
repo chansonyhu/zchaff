@@ -1,0 +1,17 @@
+#! /bin/bash
+dir=/media/qianshan/Data/TsingHua/zchaff/modified
+if [ ! -d $dir/debug ];then
+    mkdir -p $dir/debug
+    cd $dir/debug
+fi
+if [ ! -d $dir/bin ];then
+    mkdir -p $dir/bin
+    cd $dir/bin
+fi
+cd $dir/debug
+rm -rf *wrapper.cpp *.a *.o
+cd $dif/bin
+rm -rf zchaff zminimal zverify_df cnf_stats
+cd $dir
+mv zchaff zminimal zverify_df cnf_stats $dir/bin
+mv *wrapper.cpp *.a *.o $dir/debug
