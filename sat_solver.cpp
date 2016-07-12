@@ -143,15 +143,48 @@ void read_cnf(SAT_Manager mng, char * filename )
     cout <<"done read cnf"<<endl;
 }
 
+void add_sat_clause(SAT_Manager mng) {
+    set<int> clause_lits;
+    int var_idx;
+    int sign = 0;
+    for (int i=1, sz = SAT_NumVariables(mng); i<= sz; ++i) {
+	var_idx = i;
+        switch(SAT_GetVarAsgnment(mng, i)) {
+	//must reverse the sign(qianshan, 7/11/2016)
+        case -1:        
+            //cout <<"("<< i<<")"; 
+	    break;
+        case 0://false
+	    sign = 0;//sign for true
+	    break;
+        case 1://true
+	    sign = 1;//sign for false
+	    break;
+        default:
+            cerr << "Unknown variable value state"<< endl;
+            exit(4);
+        }
+	clause_lits.insert((var_idx << 1) + sign);
+    }
+    
+    vector <int> temp;
+    for (set<int>::iterator itr = clause_lits.begin();
+         itr != clause_lits.end(); ++itr)
+    {
+	//cout<<"itr: "<<(*itr)<<endl;
+        temp.push_back (*itr);
+    }
+    SAT_AddClause(mng, & temp.begin()[0], temp.size() );
+}
 
 void handle_result(SAT_Manager mng, int outcome, char * filename )
 {
     char * result = "UNKNOWN";
     switch (outcome) {
     case SATISFIABLE:
-        cout << "Instance Satisfiable" << endl;
+//        cout << "Instance Satisfiable" << endl;
 //following lines will print out a solution if a solution exist
-        for (int i=1, sz = SAT_NumVariables(mng); i<= sz; ++i) {
+        /*for (int i=1, sz = SAT_NumVariables(mng); i<= sz; ++i) {
             switch(SAT_GetVarAsgnment(mng, i)) {
             case -1:        
                 cout <<"("<< i<<")"; break;
@@ -164,7 +197,7 @@ void handle_result(SAT_Manager mng, int outcome, char * filename )
                 exit(4);
             }
             cout << " ";
-        }
+        }*/
         result  = "SAT";
         break;
     case UNSATISFIABLE:
@@ -181,6 +214,18 @@ void handle_result(SAT_Manager mng, int outcome, char * filename )
         break;
     default:
         cerr << "Unknown outcome" << endl;
+    }
+
+
+}
+
+void output_status(SAT_Manager mng, int outcome)
+{
+    char * result = "UNKNOWN";
+    switch(outcome) {
+    case SATISFIABLE: result = "SAT";break;
+    case UNSATISFIABLE: result = "UNSAT";break;
+    default: result = "Unknown outcome";
     }
     cout << "Random Seed Used\t\t\t\t" << SAT_Random_Seed(mng) << endl;
     cout << "Max Decision Level\t\t\t\t" << SAT_MaxDLevel(mng) << endl;
@@ -201,12 +246,7 @@ void handle_result(SAT_Manager mng, int outcome, char * filename )
     cout << "Total Run Time\t\t\t\t\t" << SAT_GetCPUTime(mng) << endl;
 //    cout << "RESULT:\t" << filename << " " << result << " RunTime: " << SAT_GetCPUTime(mng)<< endl;
     cout  << "RESULT:\t"<<result << endl;
-
-
-}
-
-void output_status(SAT_Manager mng)
-{
+/*
     cout << "Dec: " << SAT_NumDecisions(mng)<< "\t ";
     cout << "AddCl: " << SAT_NumAddedClauses(mng) <<"\t";
     cout << "AddLit: " << SAT_NumAddedLiterals(mng)<<"\t";
@@ -216,6 +256,7 @@ void output_status(SAT_Manager mng)
     cout << "AveBubbleMove: " << SAT_AverageBubbleMove(mng) <<"\t";
     //other statistics comes here
     cout << "RunTime:" << SAT_GetElapsedCPUTime(mng) << endl;
+*/
 }
 
 void verify_solution(SAT_Manager mng)
@@ -274,10 +315,30 @@ int main(int argc, char ** argv)
 /* randomness may help sometimes, by default, there is no randomness */
 //    SAT_SetRandomness (mng, 10);
 //    SAT_SetRandSeed (mng, -1);
-    int result = SAT_Solve(mng);
-    if (result == SATISFIABLE) 
-        verify_solution(mng);
-    handle_result (mng, result,  argv[1]);
-    output_status(mng);
+//    cout<<"NumClauses: "<<SAT_NumClauses(mng)<<endl;
+//    getchar();
+    SAT_InitSolve(mng);
+    int result = SAT_Preprocess(mng);
+    if (result == UNDETERMINED)
+	result = SAT_RealSolve(mng);
+    else if (result = UNSATISFIABLE) {
+	handle_result (mng, result, argv[1]);
+    }
+    int num_solution = 0;
+    while (result == SATISFIABLE) {
+//        verify_solution(mng);
+	handle_result (mng, result, argv[1]);
+	add_sat_clause(mng);
+//        cout<<"NumClauses: "<<SAT_NumClauses(mng)<<endl;
+	SAT_Reset(mng);
+	SAT_InitSolve(mng);
+	result = SAT_RealSolve(mng);
+	++num_solution;
+    }
+    cout<<"There exists "<<num_solution<<" solutions."<<endl;
+    cout<<endl;
+    result = SATISFIABLE;
+    output_status(mng, result);
+//    SAT_PrintCls(mng);
     return 0;
 }

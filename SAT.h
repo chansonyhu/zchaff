@@ -225,6 +225,9 @@ void SAT_SetMemLimit(SAT_Manager        mng,
                      int                num_bytes);
 
 
+void SAT_InitSolve(SAT_Manager mng);
+int SAT_RealSolve(SAT_Manager mng);
+int SAT_Preprocess(SAT_Manager mng);
 int SAT_Solve(SAT_Manager mng);
 // enum SAT_StatusT
 // Get a variable's assignment. -1 means UNKNOWN or undecided
@@ -443,4 +446,5 @@ void SAT_GenClsNot(SAT_Manager          mng,
                    int                  o,
                    int                  gid = 0);
 
+void SAT_PrintCls(SAT_Manager		mng);
 #endif

@@ -1,0 +1,6 @@
+c NOTE: Satisfiable
+c author: qianshan
+c
+p cnf 3 2
+1 2 3 0
+-1 2 3 0

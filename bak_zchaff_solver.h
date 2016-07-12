@@ -240,7 +240,10 @@ class CSolver:public CDatabase {
     void re_init_stats(void);
     void init_stats(void);
     void init_parameters(void);
+    void init_solve(void);
+    void real_solve(void);
     void restart(void);
+    int preprocess(void);
     int deduce(void);
     void run_periodic_functions(void);
 
@@ -274,10 +277,6 @@ class CSolver:public CDatabase {
     ~CSolver(void);
 
     // member access function
-    void init_solve(void);
-    int real_solve(void);
-    int preprocess(void);
-
     void set_time_limit(float t);
     void set_mem_limit(int s);
     void enable_cls_deletion(bool allow);

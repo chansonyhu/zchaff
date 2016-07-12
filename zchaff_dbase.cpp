@@ -341,6 +341,9 @@ bool CDatabase::enlarge_lit_pool(void) {
   return true;
 }
 
+// the free index of clause is actually the last index of the vector
+// at the meantime, add a new clause to the vector and set its index
+// (every clause has a unique ID) as _stats.num_added_clause
 ClauseIdx CDatabase::get_free_clause_idx(void) {
   ClauseIdx new_cl;
   new_cl = _clauses.size();
@@ -393,7 +396,7 @@ ClauseIdx CDatabase::add_clause(int * lits, int n_lits, int gflag) {
         v.watched(v_sign).push_back(&cl.literal(i));
         cl.literal(i).set_watch(1);
         break;
-      } else {
+      } else {//this literal is true(qianshan, 7/10/2016)
         if (v.dlevel() > max_dl) {
           max_dl = v.dlevel();
           max_idx = i;

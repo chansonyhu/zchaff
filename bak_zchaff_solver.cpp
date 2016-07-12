@@ -227,8 +227,7 @@ void CSolver::init_solve(void) {
   assert(_conflict_lits.empty());
   assert(_num_marked == 0);
   assert(_num_in_new_cl == 0);
-  //(qianshan, 7/11/2016)
-  //assert(_dlevel == 0);
+  assert(_dlevel == 0);
 
   for (unsigned i = 0, sz = variables()->size(); i < sz; ++i) {
     variable(i).score(0) = variable(i).lits_count(0);
@@ -715,8 +714,7 @@ bool CSolver::decide_next_branch(void) {
 }
 
 int CSolver::preprocess(void) {
-  //(qianshan, 7/11/2016)
-  //assert(dlevel() == 0);
+  assert(dlevel() == 0);
 
   // 1. detect all the unused variables
   vector<int> un_used;
@@ -826,18 +824,7 @@ void CSolver::mark_var_branchable(int vid) {
     }
   }
 }
-/*
-ClauseIdx CSolver::add_sat_clause(void) {
-  int n_lits = num_variables();
-  int * lits;
-  vector <int> lits;
-  //generate lits
-  
-  int gid == VOLATILE_GID;
-  int cid = add_orig_clause(lits, n_lits, gid);
-  return cid;
-}
-*/
+
 ClauseIdx CSolver::add_orig_clause(int * lits, int n_lits, int gid) {
   int cid = add_clause_with_gid(lits, n_lits, gid);
   if (cid >= 0) {
@@ -877,7 +864,7 @@ ClauseIdx CSolver::add_conflict_clause(int * lits, int n_lits, int gflag) {
   return cid;
 }
 
-int CSolver::real_solve(void) {
+void CSolver::real_solve(void) {
   while (_stats.outcome == UNDETERMINED) {
     run_periodic_functions();
     if (decide_next_branch()) {
@@ -886,26 +873,26 @@ int CSolver::real_solve(void) {
         blevel = analyze_conflicts();
         if (blevel < 0) {
           _stats.outcome = UNSATISFIABLE;
-          return UNSATISFIABLE;
+          return;
         }
       }
     } else {
       if (_sat_hook != NULL && _sat_hook(this))
         continue;
       _stats.outcome = SATISFIABLE;
-      return SATISFIABLE;
+      return;
     }
     if (time_out()) {
       _stats.outcome = TIME_OUT;
-      return TIME_OUT;
+      return;
     }
     if (_force_terminate) {
       _stats.outcome = ABORTED;
-      return ABORTED;
+      return;
     }
     if (_stats.is_mem_out) {
       _stats.outcome = MEM_OUT;
-      return MEM_OUT;
+       return;
     }
   }
 }

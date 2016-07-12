@@ -140,6 +140,25 @@ int SAT_GetVolatileGroupID(SAT_Manager mng) {
   return -1;
 }
 
+void SAT_InitSolve(SAT_Manager mng) {
+  CSolver * solver = (CSolver*) mng;
+  solver->init_solve();
+}
+
+int SAT_RealSolve(SAT_Manager mng) {
+  CSolver * solver = (CSolver*) mng;
+  int result = solver->solve();
+  return result;
+}
+
+int SAT_Preprocess(SAT_Manager mng) {
+  CSolver * solver = (CSolver*) mng;
+  int result = solver->preprocess();
+  if (result == CONFLICT)
+    return UNSATISFIABLE;
+  return UNDETERMINED;
+}
+
 int SAT_Solve(SAT_Manager mng) {
   CSolver * solver = (CSolver*) mng;
   int result = solver->solve();
@@ -486,4 +505,9 @@ void SAT_GenClsNot(SAT_Manager           mng,
   CSolver * solver = (CSolver*) mng;
   CClause_Gen cls_gen;
   cls_gen.not1(*solver, a, o, gid);
+}
+
+void SAT_PrintCls(SAT_Manager		mng) {
+  CSolver * solver = (CSolver*) mng;
+  solver->print_cls(cout);
 }

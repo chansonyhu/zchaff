@@ -130,10 +130,12 @@ class CLitPoolElement {
     }
 
     // followings are for manipulate watched literals
+
     int direction(void) {
       return ((_val & 0x3) - 2);
     }
 
+    //false iff _val is multiple of 4
     bool is_watched(void) {
       return ((_val & 0x3) != 0);
     }
@@ -326,7 +328,7 @@ class CVariable {
     unsigned _value             : 2;  // it can take 3 values, 0, 1 and UNKNOWN
     bool _marked                : 1;  // used in conflict analysis.
     unsigned _new_cl_phase      : 2;  // it can take 3 value
-    // 0: pos phase, 1: neg phase, UNKNOWN : not in new clause;
+    // 0: positive phase, 1: negative phase, UNKNOWN : not in new clause;
     // It is used to keep track of literals appearing
     // in newly added clause so that
     // a. each variable can only appearing in one phase
